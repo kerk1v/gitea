@@ -19,6 +19,11 @@ spec:
       containers:
         - name: mariadb
           image: mariadb:10.11
+          args:
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+            - --skip-character-set-client-handshake
+            - --max-allowed-packet=128M
           ports:
             - containerPort: 3306
               name: mysql
@@ -47,15 +52,29 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
-          livenessProbe:
-            tcpSocket:
-              port: mysql
-            initialDelaySeconds: 30
+          startupProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1;'"
+            failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
-            tcpSocket:
-              port: mysql
-            initialDelaySeconds: 5
+            exec:
+              command:
+                - bash
+                - -c
+                - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1;'"
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1;'"
+            initialDelaySeconds: 30
             periodSeconds: 10
       volumes:
         - name: mariadb-data

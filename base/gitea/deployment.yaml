@@ -14,6 +14,13 @@ spec:
       labels:
         app: gitea
     spec:
+      initContainers:
+        - name: init-directories
+          image: busybox:1.36
+          command: ['sh', '-c', 'mkdir -p /data/gitea/conf /data/gitea/repositories /data/gitea/tmp /data/gitea/uploads /data/gitea/attachments /data/gitea/avatars && chown -R 1000:1000 /data']
+          volumeMounts:
+            - name: gitea-data
+              mountPath: /data
       containers:
         - name: gitea
           image: gitea/gitea:1.21
@@ -27,6 +34,19 @@ spec:
               value: "1000"
             - name: USER_GID
               value: "1000"
+            - name: GITEA__database__DB_TYPE
+              value: "mysql"
+            - name: GITEA__database__HOST
+              value: "mariadb:3306"
+            - name: GITEA__database__NAME
+              value: "gitea"
+            - name: GITEA__database__USER
+              value: "gitea"
+            - name: GITEA__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: gitea-db-secrets
+                  key: mariadb-password
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -65,19 +85,23 @@ spec:
             limits:
               cpu: "1000m"
               memory: "1Gi"
-          livenessProbe:
+          startupProbe:
             httpGet:
               path: /api/healthz
               port: http
-            initialDelaySeconds: 200
-            timeoutSeconds: 5
+            failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /api/healthz
               port: http
-            initialDelaySeconds: 5
-            timeoutSeconds: 5
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            initialDelaySeconds: 120
             periodSeconds: 10
           securityContext:
             runAsUser: 1000
