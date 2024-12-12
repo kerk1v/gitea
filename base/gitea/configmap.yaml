@@ -27,7 +27,7 @@ data:
     HTTP_PORT = 3000
     ROOT_URL = https://git.conxtor.com/
     DISABLE_SSH = false
-    SSH_PORT = 2222
+    SSH_PORT = 32222
     SSH_LISTEN_PORT = 2222
     START_SSH_SERVER = true
     LFS_START_SERVER = true
