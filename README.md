@@ -11,6 +11,29 @@ This repository contains Kubernetes manifests for deploying Gitea with MariaDB u
 - kubectl configured to access your cluster
 - Port 2222 available on the Kubernetes nodes for SSH access
 
+## ArgoCD Setup
+
+Before deploying the application, you need to set up repository authentication in ArgoCD:
+
+1. Create a repository secret in the ArgoCD namespace:
+```bash
+# First, edit argocd-repo-secret.yaml and replace:
+# - url with your Git repository URL
+# - username with your Git username
+# - password with your Git personal access token or password
+
+# Then apply the secret
+kubectl apply -f argocd-repo-secret.yaml
+```
+
+2. Verify the repository is accessible in ArgoCD:
+```bash
+kubectl get secret repo-gitea-secret -n argocd
+argocd repo list
+```
+
+3. Update the repository URL in `gitea-application.yaml` to match your repository URL.
+
 ## Project Structure
 
 ```
@@ -74,11 +97,19 @@ openssl rand -base64 48
 
 ## Deployment
 
-1. Update the repository URL in `gitea-application.yaml` to point to your Git repository.
+1. Create the ArgoCD repository secret:
+```bash
+kubectl apply -f argocd-repo-secret.yaml
+```
 
 2. Apply the ArgoCD application:
 ```bash
 kubectl apply -f gitea-application.yaml
+```
+
+3. Verify the application sync status:
+```bash
+argocd app get gitea
 ```
 
 ## Configuration Details
@@ -130,6 +161,30 @@ Gitea:
 - Each secret key serves a specific security purpose
 - TLS is enabled by default using Let's Encrypt certificates
 - SSH access is configured on a non-standard port (2222) for better security
+- Git repository credentials are stored securely in ArgoCD namespace
+
+## Troubleshooting
+
+### ArgoCD Authentication Issues
+If you see the error "authentication required":
+1. Verify the repository secret exists:
+```bash
+kubectl get secret repo-gitea-secret -n argocd
+```
+
+2. Check the repository is accessible:
+```bash
+argocd repo list
+```
+
+3. Verify the repository URL matches in both:
+   - argocd-repo-secret.yaml
+   - gitea-application.yaml
+
+4. Check ArgoCD repository logs:
+```bash
+kubectl logs -n argocd -l app.kubernetes.io/name=argocd-repo-server
+```
 
 ## Maintenance
 
