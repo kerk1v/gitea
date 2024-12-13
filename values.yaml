@@ -41,6 +41,9 @@ postgresql:
         database: gitea
         username: gitea
 
+postgresql-ha:
+  enabled: false
+
 redis:
   enabled: true
   architecture: standalone
@@ -51,6 +54,9 @@ redis:
           secretKeyRef:
             name: gitea-secrets
             key: redis-password
+
+redis-cluster:
+  enabled: false
 
 actions:
   enabled: true
