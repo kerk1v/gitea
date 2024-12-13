@@ -7,7 +7,6 @@ commonLabels:
   env: production
 
 resources:
-  - ../../base/mariadb
   - ../../base/gitea
   - namespace.yaml
 

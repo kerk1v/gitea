@@ -22,17 +22,13 @@ data:
     HTTP_PORT = 3000
     ROOT_URL = https://git.conxtor.com/
     DISABLE_SSH = false
-    SSH_PORT = 22
-    SSH_LISTEN_PORT = 22
+    SSH_PORT = 32222
+    SSH_LISTEN_PORT = 32222
     LFS_START_SERVER = true
     
     [database]
-    DB_TYPE = mysql
-    HOST = mariadb:3306
-    NAME = gitea
-    USER = gitea
-    PASSWD = vohmuChohw7i
-    SSL_MODE = disable
+    DB_TYPE = sqlite3
+    PATH = /data/gitea/gitea.db
     CHARSET = utf8mb4
     
     [indexer]
@@ -58,11 +54,11 @@ data:
     INTERNAL_TOKEN = ${GITEA_INTERNAL_TOKEN}
     
     [service]
-    DISABLE_REGISTRATION = false
+    DISABLE_REGISTRATION = true
     REQUIRE_SIGNIN_VIEW = false
     
     [oauth2]
     JWT_SECRET = ${GITEA_JWT_SECRET}
     
     [metrics]
-    ENABLED = false
+    ENABLED = true

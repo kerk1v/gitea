@@ -11,9 +11,10 @@ spec:
       targetPort: http
       protocol: TCP
     - name: ssh
-      port: 22
+      port: 32222
       targetPort: ssh
+      nodePort: 32222
       protocol: TCP
   selector:
     app: gitea
-  type: ClusterIP
+  type: NodePort
