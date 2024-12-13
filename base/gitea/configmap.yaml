@@ -28,7 +28,7 @@ data:
     
     [database]
     DB_TYPE = sqlite3
-    PATH = /data/gitea/gitea.db
+    PATH = /data/gitea/db/gitea.db
     CHARSET = utf8mb4
     
     [indexer]
@@ -45,7 +45,7 @@ data:
     
     [log]
     MODE = console
-    LEVEL = info
+    LEVEL = debug
     ROOT_PATH = /data/gitea/log
     
     [security]

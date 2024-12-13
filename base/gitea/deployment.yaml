@@ -16,10 +16,44 @@ spec:
       labels:
         app: gitea
     spec:
+      securityContext:
+        fsGroup: 1000
       initContainers:
-        - name: init-permissions
+        - name: init-directories
           image: busybox
-          command: ['sh', '-c', 'chown -R 1000:1000 /data']
+          command:
+            - sh
+            - -c
+            - |
+              # Create Gitea directories
+              mkdir -p /data/gitea/conf
+              mkdir -p /data/gitea/db
+              mkdir -p /data/gitea/repositories
+              mkdir -p /data/gitea/tmp/local-repo
+              mkdir -p /data/gitea/uploads
+              mkdir -p /data/gitea/indexers
+              mkdir -p /data/gitea/sessions
+              mkdir -p /data/gitea/avatars
+              mkdir -p /data/gitea/attachments
+              mkdir -p /data/gitea/log
+              
+              # Create and set permissions for s6 directory
+              mkdir -p /data/.s6-svscan
+              
+              # Set ownership for all directories
+              chown -R 1000:1000 /data
+              
+              # Set directory permissions
+              chmod -R 770 /data/gitea
+              chmod 760 /data/gitea/db
+              
+              # Ensure s6 directory is writable
+              chmod 770 /data/.s6-svscan
+              
+              # Create home directory for git user
+              mkdir -p /data/git
+              chown 1000:1000 /data/git
+              chmod 770 /data/git
           volumeMounts:
             - name: gitea-data
               mountPath: /data
@@ -36,6 +70,9 @@ spec:
           envFrom:
             - secretRef:
                 name: gitea-secret
+          env:
+            - name: HOME
+              value: /data/git
           volumeMounts:
             - name: gitea-data
               mountPath: /data
@@ -66,7 +103,6 @@ spec:
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
-            fsGroup: 1000
             allowPrivilegeEscalation: false
       volumes:
         - name: gitea-data
@@ -75,5 +111,3 @@ spec:
         - name: gitea-config
           configMap:
             name: gitea-config
-      securityContext:
-        fsGroup: 1000
