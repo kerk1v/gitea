@@ -1,0 +1,76 @@
+gitea:
+  admin:
+    existingSecret: gitea-secret
+  config:
+    database:
+      DB_TYPE: mysql
+      HOST: ${MARIADB_FULLNAME}:3306
+      NAME: gitea
+      USER: gitea
+      PASSWD: ${MARIADB_PASSWORD}
+    server:
+      SSH_PORT: 32222
+      SSH_LISTEN_PORT: 32222
+    metrics:
+      ENABLED: true
+    service:
+      DISABLE_REGISTRATION: true
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path
+
+service:
+  ssh:
+    type: NodePort
+    port: 32222
+    nodePort: 32222
+    externalTrafficPolicy: Local
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt
+  hosts:
+    - host: git.conxtor.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: gitea-tls
+      hosts:
+        - git.conxtor.com
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+securityContext:
+  fsGroup: 1000
+
+podSecurityContext:
+  fsGroup: 1000
+
+mariadb:
+  enabled: true
+  architecture: standalone
+  auth:
+    database: gitea
+    username: gitea
+    existingSecret: mariadb-secret
+    secretKeys:
+      rootPassword: mariadb-root-password
+      password: mariadb-password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 8Gi
+  volumePermissions:
+    enabled: true
