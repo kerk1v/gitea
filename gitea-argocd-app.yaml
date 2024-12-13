@@ -29,27 +29,3 @@ spec:
       kind: Deployment
       jsonPointers:
         - /spec/replicas
-
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: gitea-prereqs
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/kerk1v/gitea.git
-    targetRevision: HEAD
-    path: .
-    directory:
-      include: "mariadb-secret.yaml"
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: gitea
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
