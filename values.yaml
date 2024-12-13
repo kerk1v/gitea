@@ -165,22 +165,20 @@ service:
 ## @param ingress.tls Ingress tls settings
 ## @extra ingress.apiVersion Specify APIVersion of ingress object. Mostly would only be used for argocd.
 ingress:
-  enabled: false
-  # className: nginx
+  enabled: true
+  className: traefik
   className:
   annotations:
-    {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: "letsencrypt"
   hosts:
-    - host: git.example.com
+    - host: gitea.conxtor.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - git.example.com
+  tls: - hosts:
+    - gitea.conxtor.com
+    secretName: gitea-tls
   # Mostly for argocd or any other CI that uses `helm template | kubectl apply` or similar
   # If helm doesn't correctly detect your ingress API version you can set it here.
   # apiVersion: networking.k8s.io/v1
@@ -383,7 +381,7 @@ signing:
 ## @param actions.existingSecret Secret that contains the token
 ## @param actions.existingSecretKey Secret key
 actions:
-  enabled: false
+  enabled: true
   statefulset:
     annotations: {}
     labels: {}
@@ -468,9 +466,9 @@ gitea:
   ## @param gitea.metrics.serviceMonitor.scrapeTimeout Timeout after which the scrape is ended. If not specified, global Prometheus scrape timeout is used.
   ## @param gitea.metrics.serviceMonitor.tlsConfig TLS configuration to use when scraping the metric endpoint by Prometheus.
   metrics:
-    enabled: false
+    enabled: true
     serviceMonitor:
-      enabled: false
+      enabled: true
       #  additionalLabels:
       #    prometheus-release: prom1
       interval: ""
@@ -612,11 +610,11 @@ gitea:
 ## Redis cluster and [Redis](#redis) cannot be enabled at the same time.
 ## @descriptionEnd
 redis-cluster:
-  enabled: true
+  enabled: false
   usePassword: false
   cluster:
-    nodes: 3 # default: 6
-    replicas: 0 # default: 1
+    nodes: 2 # default: 6
+    replicas: 1 # default: 1
 
 ## @section redis
 ## @param redis.enabled Enable redis standalone or replicated
@@ -629,7 +627,7 @@ redis-cluster:
 ## Redis and [Redis cluster](#redis-cluster) cannot be enabled at the same time.
 ## @descriptionEnd
 redis:
-  enabled: false
+  enabled: true
   architecture: standalone
   global:
     redis:
@@ -655,7 +653,7 @@ postgresql-ha:
       database: gitea
       password: gitea
       username: gitea
-  enabled: true
+  enabled: false
   postgresql:
     repmgrPassword: changeme2
     postgresPassword: changeme1
@@ -677,7 +675,7 @@ postgresql-ha:
 ## @param postgresql.global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
 ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
 postgresql:
-  enabled: false
+  enabled: true
   global:
     postgresql:
       auth:
