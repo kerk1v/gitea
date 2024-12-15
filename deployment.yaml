@@ -33,6 +33,25 @@ spec:
           value: "true"
         - name: GITEA__service__REQUIRE_SIGNIN_VIEW
           value: "true"
+        - name: GITEA__database__DB_TYPE
+          value: "postgres"
+        - name: GITEA__database__HOST
+          value: "postgres:5432"
+        - name: GITEA__database__NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_DB
+        - name: GITEA__database__USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_USER
+        - name: GITEA__database__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secrets
+              key: POSTGRES_PASSWORD
       volumes:
       - name: gitea-data
         persistentVolumeClaim:
